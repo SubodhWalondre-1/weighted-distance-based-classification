@@ -1,0 +1,564 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Interactive weighted distance-based classification laboratory with real-time metric deformation and live animations"
+    />
+    <title>Weighted Distance Classifier | Interactive ML Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2225%22 fill=%22%236366f1%22/><rect x=%2220%22 y=%2250%22 width=%2215%22 height=%2235%22 rx=%224%22 fill=%22white%22 opacity=%220.7%22/><rect x=%2242%22 y=%2232%22 width=%2215%22 height=%2253%22 rx=%224%22 fill=%22white%22 opacity=%220.9%22/><rect x=%2265%22 y=%2215%22 width=%2215%22 height=%2270%22 rx=%224%22 fill=%22white%22/></svg>" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- Ambient Background Glow Mesh -->
+    <div class="ambient-glow" aria-hidden="true">
+      <div class="glow-orb orb-1"></div>
+      <div class="glow-orb orb-2"></div>
+    </div>
+
+    <div class="page-shell">
+      <!-- Sticky Glass Topbar -->
+      <header class="topbar">
+        <a
+          class="brand"
+          href="#top"
+          aria-label="Weighted Distance Classifier home"
+        >
+          <span class="brand-mark">
+            <span></span><span></span><span></span>
+          </span>
+          <span class="brand-text">
+            <strong>Weighted Distance</strong> Classifier
+          </span>
+        </a>
+        <div class="model-status" id="model-status">
+          <span class="status-ping">
+            <span class="ping-ring"></span>
+            <span class="ping-dot"></span>
+          </span>
+          <span class="status-text">Model Status: <strong>Loading...</strong></span>
+        </div>
+      </header>
+
+      <main id="top">
+        <!-- Hero Section: Perfectly Aligned to Page Shell -->
+        <section class="hero reveal">
+          <div class="hero-copy">
+            <p class="eyebrow">
+              <span class="eyebrow-dot"></span> MACHINE LEARNING PRACTICAL &bull; LAB 01
+            </p>
+            <h1>Weighted Distance-Based <em>Classification</em></h1>
+            <p class="hero-lede">
+              Assign differential importance weights to features, dynamically deform the Euclidean distance metric, and witness real-time model accuracy improvements.
+            </p>
+            <div class="hero-pills">
+              <span class="pill-tag"><i class="tag-dot"></i> Interactive Visualizer</span>
+              <span class="pill-tag"><i class="tag-dot"></i> Weighted KNN Engine</span>
+              <span class="pill-tag"><i class="tag-dot"></i> Live Iso-Metric Deformation</span>
+            </div>
+          </div>
+
+          <div class="formula-card">
+            <div class="formula-header">
+              <span class="formula-icon">&radic;</span>
+              <div class="formula-titles">
+                <span class="formula-label">DISTANCE FUNCTION</span>
+                <strong>Weighted Euclidean Distance</strong>
+              </div>
+            </div>
+            <div class="formula" id="dynamic-formula">
+              D(x, y) = <span class="radical">&radic;</span><span class="sum">&Sigma;</span>
+              <span class="formula-term" id="term-w">w<sub>i</sub></span>
+              &middot; (x<sub>i</sub> &minus; y<sub>i</sub>)<sup>2</sup>
+            </div>
+            <div class="formula-live-chips" id="formula-live-chips">
+              <span class="chip-item">w<sub>1</sub> = <strong id="chip-w1">1.0</strong></span>
+              <span class="chip-item">w<sub>2</sub> = <strong id="chip-w2">1.0</strong></span>
+            </div>
+            <p class="formula-footnote">
+              Features with larger weights contribute more heavily to the total distance, effectively compressing that feature axis in similarity space.
+            </p>
+          </div>
+        </section>
+
+        <div id="toast" class="toast" role="alert" aria-live="polite"></div>
+
+        <!-- Controls Section: Setup & Weights with Equal Heights -->
+        <section class="control-layout reveal">
+          <!-- Setup Card -->
+          <article class="card setup-card">
+            <div class="section-heading">
+              <div>
+                <p class="kicker">EXPERIMENT CONTROLS</p>
+                <h2>Classification Setup</h2>
+              </div>
+              <span class="card-index">01</span>
+            </div>
+
+            <div class="control-grid">
+              <div class="field-group full">
+                <label for="dataset-select" class="field-label">Dataset Preset</label>
+                <div class="select-wrapper">
+                  <select id="dataset-select">
+                    <option value="2d-120">Standard 2D (1 Informative + 1 Noise, 120 pts)</option>
+                    <option value="3d-150">Multi-Feature 3D (1 Informative + 2 Noise, 150 pts)</option>
+                    <option value="2d-240">Dense Clusters 2D (240 pts)</option>
+                    <option value="2d-60">Compact Benchmark 2D (60 pts)</option>
+                  </select>
+                  <span class="select-chevron">&dtrif;</span>
+                </div>
+              </div>
+
+              <div class="field-group">
+                <div class="field-header">
+                  <label for="k-input" class="field-label">K Nearest Neighbors</label>
+                  <output id="k-value" class="slider-badge">3</output>
+                </div>
+                <div class="range-line">
+                  <input
+                    id="k-input"
+                    type="range"
+                    min="1"
+                    max="15"
+                    value="3"
+                    aria-label="K Nearest Neighbors"
+                  />
+                </div>
+              </div>
+
+              <div class="field-group">
+                <div class="field-header">
+                  <label for="test-size-input" class="field-label">Test Split Size</label>
+                  <output id="test-size-value" class="slider-badge">20%</output>
+                </div>
+                <div class="range-line">
+                  <input
+                    id="test-size-input"
+                    type="range"
+                    min="10"
+                    max="40"
+                    value="20"
+                    aria-label="Test Split Percentage"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div class="button-row">
+              <button class="button secondary" id="load-button" type="button">
+                <span class="btn-icon">&circlearrowright;</span> Reload Dataset
+              </button>
+              <button class="button primary" id="run-button" type="button">
+                <span class="scan-beam"></span>
+                <span class="button-label">Run Classification</span>
+                <span class="button-spinner"></span>
+              </button>
+            </div>
+
+            <div class="setup-note">
+              <span class="note-icon">i</span> Adjust weights or sliders in real-time to watch live visualizers react, then click <strong>Run Classification</strong> to re-evaluate model metrics.
+            </div>
+          </article>
+
+          <!-- Feature Weights Card -->
+          <article class="card weight-card">
+            <div class="section-heading">
+              <div>
+                <p class="kicker">FEATURE TUNING</p>
+                <h2>Feature Importance Weights</h2>
+              </div>
+              <button class="text-button" id="reset-button" type="button">
+                Reset to 1.0
+              </button>
+            </div>
+
+            <p class="section-description">
+              Tune how strongly each standardized feature influences the distance calculation. Moving sliders live-updates the 2D feature space deformation below.
+            </p>
+
+            <!-- Quick Presets -->
+            <div class="presets-row">
+              <span class="presets-label">Presets:</span>
+              <div class="preset-buttons">
+                <button class="preset-pill" type="button" data-preset="equal">Equal (1.0)</button>
+                <button class="preset-pill" type="button" data-preset="feat1">Feature 1 Heavy</button>
+                <button class="preset-pill" type="button" data-preset="feat2">Feature 2 Heavy</button>
+                <button class="preset-pill" type="button" data-preset="suppress">Noise Suppressed</button>
+              </div>
+            </div>
+
+            <div id="weights-container" class="weights-container">
+              <div class="empty-state">Loading feature controls...</div>
+            </div>
+
+            <div class="weight-legend">
+              <span><i class="legend-dot low"></i> Ignored (0.0)</span>
+              <span><i class="legend-dot mid"></i> Standard (1.0)</span>
+              <span><i class="legend-dot high"></i> Emphasized (2.0)</span>
+            </div>
+          </article>
+        </section>
+
+        <!-- Interactive 2D Feature Space & Distance Metric Canvas -->
+        <section class="card canvas-card reveal">
+          <div class="section-heading">
+            <div>
+              <p class="kicker">LIVE INTERACTIVE GEOMETRY</p>
+              <h2>2D Feature Space &amp; Iso-Distance Metric Deformation</h2>
+            </div>
+            <div class="canvas-badge">
+              <span class="live-dot"></span> 60 FPS Interactive Canvas
+            </div>
+          </div>
+          <p class="section-description">
+            Drag <strong>Point A (Query)</strong> or click anywhere in the feature space. Notice how changing the feature weights <strong>stretches and deforms the yellow distance metric ellipse</strong> and redirects the K-nearest neighbor connections in real-time!
+          </p>
+
+          <div class="canvas-viewport-wrapper">
+            <canvas id="decision-canvas" height="340" aria-label="Interactive 2D Feature Space Decision Field"></canvas>
+          </div>
+
+          <div class="canvas-footer-bar">
+            <div class="canvas-legend-group">
+              <span class="legend-item"><i class="node-icon class-a"></i> Class A Samples</span>
+              <span class="legend-item"><i class="node-icon class-b"></i> Class B Samples</span>
+              <span class="legend-item"><i class="node-icon query-a"></i> Point A (Query - Draggable)</span>
+              <span class="legend-item"><i class="node-icon ref-b"></i> Point B (Reference)</span>
+              <span class="legend-item"><i class="node-icon ellipse"></i> Iso-Distance Contour</span>
+              <span class="legend-item"><i class="node-icon ray"></i> KNN Rays</span>
+            </div>
+            <div class="canvas-hint">
+              <span>Tip:</span> Click/drag canvas to move query point
+            </div>
+          </div>
+        </section>
+
+        <!-- Dataset Preview Section -->
+        <section class="card dataset-card reveal">
+          <div class="section-heading">
+            <div>
+              <p class="kicker">DATASET INSPECTOR</p>
+              <h2>Dataset Observations &amp; Statistics</h2>
+            </div>
+            <span class="dataset-badge" id="dataset-badge">Waiting for data</span>
+          </div>
+
+          <div class="stat-strip" id="dataset-stats">
+            <div class="stat-item">
+              <span class="stat-icon">&#9638;</span>
+              <div>
+                <span class="stat-label">Total Samples</span>
+                <strong id="sample-count">--</strong>
+              </div>
+            </div>
+            <div class="stat-item">
+              <span class="stat-icon">&#8801;</span>
+              <div>
+                <span class="stat-label">Features</span>
+                <strong id="feature-count">--</strong>
+              </div>
+            </div>
+            <div class="stat-item">
+              <span class="stat-icon">&#10022;</span>
+              <div>
+                <span class="stat-label">Classes</span>
+                <strong id="class-count">--</strong>
+              </div>
+            </div>
+            <div class="stat-item stat-context">
+              <span class="stat-icon">&#10003;</span>
+              <div>
+                <span class="stat-label">Preprocessing</span>
+                <strong>StandardScaler (Mean 0, Var 1)</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead id="dataset-head"></thead>
+              <tbody id="dataset-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Results Section with Radial Metric Gauges -->
+        <section class="results-section reveal">
+          <div class="section-heading section-heading-wide">
+            <div>
+              <p class="kicker">MODEL EVALUATION</p>
+              <h2>Classification Results &amp; Performance</h2>
+            </div>
+            <div class="result-state" id="result-state">
+              <span class="result-state-dot"></span> Run classification to evaluate metrics
+            </div>
+          </div>
+
+          <div class="metrics-grid">
+            <article class="metric-card accent">
+              <div class="metric-card-top">
+                <span class="metric-label">Accuracy</span>
+                <span class="metric-badge-tag">PRIMARY</span>
+              </div>
+              <div class="metric-gauge-row">
+                <strong class="metric-number" id="metric-accuracy">--</strong>
+                <div class="mini-ring" id="ring-accuracy">
+                  <svg viewBox="0 0 36 36" class="circular-chart">
+                    <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                    <path class="circle" stroke-dasharray="0, 100" id="circle-accuracy" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                  </svg>
+                </div>
+              </div>
+              <span class="metric-foot">Overall correct test predictions</span>
+            </article>
+
+            <article class="metric-card">
+              <div class="metric-card-top">
+                <span class="metric-label">Precision</span>
+                <span class="metric-badge-tag">WEIGHTED</span>
+              </div>
+              <div class="metric-gauge-row">
+                <strong class="metric-number" id="metric-precision">--</strong>
+                <div class="mini-ring">
+                  <svg viewBox="0 0 36 36" class="circular-chart">
+                    <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                    <path class="circle color-amber" stroke-dasharray="0, 100" id="circle-precision" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                  </svg>
+                </div>
+              </div>
+              <span class="metric-foot">Positive predictive reliability</span>
+            </article>
+
+            <article class="metric-card">
+              <div class="metric-card-top">
+                <span class="metric-label">Recall</span>
+                <span class="metric-badge-tag">WEIGHTED</span>
+              </div>
+              <div class="metric-gauge-row">
+                <strong class="metric-number" id="metric-recall">--</strong>
+                <div class="mini-ring">
+                  <svg viewBox="0 0 36 36" class="circular-chart">
+                    <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                    <path class="circle color-emerald" stroke-dasharray="0, 100" id="circle-recall" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                  </svg>
+                </div>
+              </div>
+              <span class="metric-foot">True positive detection rate</span>
+            </article>
+
+            <article class="metric-card">
+              <div class="metric-card-top">
+                <span class="metric-label">F1 Score</span>
+                <span class="metric-badge-tag">HARMONIC</span>
+              </div>
+              <div class="metric-gauge-row">
+                <strong class="metric-number" id="metric-f1">--</strong>
+                <div class="mini-ring">
+                  <svg viewBox="0 0 36 36" class="circular-chart">
+                    <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                    <path class="circle color-violet" stroke-dasharray="0, 100" id="circle-f1" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                  </svg>
+                </div>
+              </div>
+              <span class="metric-foot">Harmonic mean of precision &amp; recall</span>
+            </article>
+          </div>
+        </section>
+
+        <!-- Analysis Grid: Comparison & Sensitivity Charts -->
+        <section class="analysis-grid reveal">
+          <!-- Comparison Card -->
+          <article class="card comparison-card">
+            <div class="section-heading">
+              <div>
+                <p class="kicker">BASELINE BENCHMARK</p>
+                <h2>Impact of Feature Weighting</h2>
+              </div>
+              <span class="card-index">02</span>
+            </div>
+            <p class="section-description">
+              Directly compare the standard uniform unweighted KNN baseline against your custom weighted model.
+            </p>
+
+            <div class="comparison-cards">
+              <div class="compare-side unweighted-side">
+                <div class="compare-header">
+                  <span class="compare-label">UNWEIGHTED (1.0)</span>
+                  <span class="compare-pill">BASELINE</span>
+                </div>
+                <strong id="unweighted-accuracy">--</strong>
+                <span class="weight-list" id="unweighted-weights">Weights: [1.0, 1.0]</span>
+              </div>
+
+              <div class="compare-side weighted-side">
+                <div class="compare-header">
+                  <span class="compare-label">WEIGHTED (CUSTOM)</span>
+                  <span class="compare-pill active" id="delta-pill">ACTIVE</span>
+                </div>
+                <strong id="weighted-accuracy">--</strong>
+                <span class="weight-list" id="weighted-weights">Weights: --</span>
+              </div>
+            </div>
+
+            <div class="improvement-box">
+              <div class="improvement-header">
+                <span>Accuracy Delta:</span>
+                <strong id="improvement-value">--</strong>
+              </div>
+              <div class="improvement-track">
+                <span id="improvement-bar"></span>
+              </div>
+            </div>
+
+            <div class="chart-box comparison-chart">
+              <canvas id="comparison-chart" aria-label="Unweighted vs Weighted accuracy comparison"></canvas>
+            </div>
+          </article>
+
+          <!-- Sensitivity Analysis Card -->
+          <article class="card impact-card">
+            <div class="section-heading">
+              <div>
+                <p class="kicker">SENSITIVITY ANALYSIS</p>
+                <h2>Feature Weight vs. Accuracy Curve</h2>
+              </div>
+              <span class="card-index">03</span>
+            </div>
+            <p class="section-description">
+              Sweeps feature weight values from 0.0 to 2.0 to reveal which features are genuinely informative vs. noisy distractors.
+            </p>
+
+            <div class="chart-box impact-chart">
+              <canvas id="impact-chart" aria-label="Feature weight versus classification accuracy"></canvas>
+            </div>
+
+            <div class="chart-caption">
+              <span class="caption-line"></span>
+              <span>Curves evaluated using identical deterministic stratified test folds.</span>
+            </div>
+          </article>
+        </section>
+
+        <!-- Lower Grid: Confusion Matrix & Distance Breakdown -->
+        <section class="lower-grid reveal">
+          <!-- Confusion Matrix Card -->
+          <article class="card confusion-card">
+            <div class="section-heading">
+              <div>
+                <p class="kicker">ERROR ANALYSIS</p>
+                <h2>Confusion Matrix</h2>
+              </div>
+              <span class="card-index">04</span>
+            </div>
+            <p class="section-description">
+              Distribution of true positive, true negative, and misclassified test instances.
+            </p>
+
+            <div id="confusion-matrix" class="matrix-container">
+              <div class="empty-state">Run classification to generate confusion matrix.</div>
+            </div>
+          </article>
+
+          <!-- Weighted Distance Visualizer Card -->
+          <article class="card distance-card">
+            <div class="section-heading">
+              <div>
+                <p class="kicker">GEOMETRIC DECOMPOSITION</p>
+                <h2>Weighted Distance Breakdown</h2>
+              </div>
+              <span class="card-index">05</span>
+            </div>
+            <p class="section-description">
+              Individual feature squared-difference contributions scaled by your selected weight coefficients.
+            </p>
+
+            <div class="points-row">
+              <div class="point-chip">
+                <span class="point-tag">POINT A (X)</span>
+                <strong id="point-a">--</strong>
+              </div>
+              <span class="distance-arrow">&rarr;</span>
+              <div class="point-chip">
+                <span class="point-tag">POINT B (Y)</span>
+                <strong id="point-b">--</strong>
+              </div>
+              <div class="distance-total">
+                <span>Weighted Distance</span>
+                <strong id="weighted-distance">--</strong>
+              </div>
+            </div>
+
+            <div id="distance-bars" class="distance-bars">
+              <div class="empty-state">Run classification or adjust sliders to see feature distance decomposition.</div>
+            </div>
+
+            <div class="distance-equation">
+              <span class="eq-symbol">&radic;</span>
+              <span>D = &radic;&Sigma; <strong>[ w<sub>i</sub> &times; (x<sub>i</sub> &minus; y<sub>i</sub>)<sup>2</sup> ]</strong></span>
+            </div>
+          </article>
+        </section>
+
+        <!-- Method Steps -->
+        <section class="card how-card reveal">
+          <div class="section-heading">
+            <div>
+              <p class="kicker">METHODOLOGY</p>
+              <h2>How Weighted Distance Classification Works</h2>
+            </div>
+            <span class="method-note">4-Stage Pipeline</span>
+          </div>
+
+          <div class="steps-timeline">
+            <div class="step-card">
+              <div class="step-num-badge">01</div>
+              <strong>Feature Standardization</strong>
+              <p>Scale each dimension to zero mean and unit variance so no raw unit dominates.</p>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step-card">
+              <div class="step-num-badge">02</div>
+              <strong>Assign Feature Weights</strong>
+              <p>Apply multipliers w<sub>i</sub> &ge; 0 reflecting domain importance or feature relevance.</p>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step-card">
+              <div class="step-num-badge">03</div>
+              <strong>Warped Distance Metric</strong>
+              <p>Compute D(x, y) = &radic;&Sigma; w<sub>i</sub>&middot;(x<sub>i</sub> - y<sub>i</sub>)&sup2;, deforming the decision field.</p>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step-card">
+              <div class="step-num-badge">04</div>
+              <strong>K-NN Majority Vote</strong>
+              <p>Find the K nearest neighbors in weighted space to cast the final classification vote.</p>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <!-- Footer -->
+      <footer class="footer">
+        <div class="footer-left">
+          <strong>Weighted Distance-Based Classification Laboratory</strong>
+          <span class="footer-sep">&bull;</span>
+          <span>Machine Learning Practical</span>
+        </div>
+        <p class="footer-right">Interactive Educational Workbench</p>
+      </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <script src="charts.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
