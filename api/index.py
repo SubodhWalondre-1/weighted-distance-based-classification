@@ -1,5 +1,10 @@
 import os
 import sys
+import warnings
+
+# Suppress joblib multiprocessing warning on serverless runtimes
+os.environ["JOBLIB_MULTIPROCESSING"] = "0"
+warnings.filterwarnings("ignore", category=UserWarning, module="joblib")
 
 # Ensure backend directory is in the Python search path
 backend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "backend"))

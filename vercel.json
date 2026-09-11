@@ -9,12 +9,8 @@
       "destination": "/api/index.py"
     },
     {
-      "source": "/",
-      "destination": "/frontend/index.html"
-    },
-    {
-      "source": "/:path*",
-      "destination": "/frontend/:path*"
+      "source": "/frontend/:path*",
+      "destination": "/:path*"
     }
   ]
 }
