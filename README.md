@@ -35,6 +35,9 @@ This laboratory provides:
 
 ```
 weighted-distance-based-classification/
+├── api/
+│   ├── index.py           # Vercel Serverless Function entrypoint
+│   └── requirements.txt
 ├── backend/
 │   ├── classifier.py      # WeightedDistanceClassifier implementation
 │   ├── dataset.py         # Sample dataset generator and preprocessing
@@ -48,13 +51,34 @@ weighted-distance-based-classification/
 │   ├── app.js             # State management, API communication, and event coordination
 │   ├── charts.js          # Chart.js charts and 2D FeatureSpaceCanvas engine
 │   └── README.md
+├── vercel.json            # Vercel routing configuration
+├── requirements.txt       # Root dependencies for Vercel Python runtime
 ├── .gitignore
 └── README.md
 ```
 
 ---
 
-## Quick Start
+## Deploy to Vercel
+
+Both the Python FastAPI backend and the interactive frontend are configured to deploy together on Vercel out of the box:
+
+### Option A: Import from GitHub (Recommended)
+1. Go to [vercel.com/new](https://vercel.com/new) and log in.
+2. Select your GitHub repository: `SubodhWalondre-1/weighted-distance-based-classification`.
+3. Keep all **Project Settings** at default values (Vercel automatically detects `vercel.json` for routing, `api/index.py` for the Python serverless runtime, and `frontend/` for the web assets).
+4. Click **Deploy**.
+5. Once deployed, your interactive laboratory will be live at `https://your-project-name.vercel.app`!
+
+### Option B: Deploy via Vercel CLI
+```bash
+npx vercel
+```
+Follow the interactive prompts to link and deploy the project to your Vercel account.
+
+---
+
+## Quick Start (Local)
 
 ### 1. Start the Backend API
 
