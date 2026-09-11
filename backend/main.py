@@ -78,15 +78,19 @@ def _run(request: ClassificationRequest, weights: np.ndarray | None = None) -> D
 
 
 @app.get("/")
+@app.get("/api")
+@app.get("/api/")
 def root() -> Dict[str, str]:
     return {"message": "Weighted Distance-Based Classification API", "docs": "/docs"}
 
 
+@app.get("/health")
 @app.get("/api/health")
 def health() -> Dict[str, str]:
     return {"status": "healthy"}
 
 
+@app.post("/dataset/sample")
 @app.post("/api/dataset/sample")
 def sample_dataset(request: DatasetRequest | None = None) -> Dict[str, Any]:
     settings = request or DatasetRequest()
@@ -103,6 +107,7 @@ def sample_dataset(request: DatasetRequest | None = None) -> Dict[str, Any]:
     }
 
 
+@app.post("/classify", response_model=ClassificationResponse)
 @app.post("/api/classify", response_model=ClassificationResponse)
 def classify(request: ClassificationRequest) -> Dict[str, Any]:
     try:
@@ -111,6 +116,7 @@ def classify(request: ClassificationRequest) -> Dict[str, Any]:
         raise HTTPException(status_code=400, detail=str(error)) from error
 
 
+@app.post("/compare")
 @app.post("/api/compare")
 def compare(request: ClassificationRequest) -> Dict[str, Any]:
     try:
@@ -127,6 +133,7 @@ def compare(request: ClassificationRequest) -> Dict[str, Any]:
         raise HTTPException(status_code=400, detail=str(error)) from error
 
 
+@app.post("/feature-impact")
 @app.post("/api/feature-impact")
 def feature_impact(request: FeatureWeightRequest) -> Dict[str, Any]:
     try:
